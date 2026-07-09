@@ -12,7 +12,8 @@ Open-VoHive 的 OpenWrt / ImmortalWrt LuCI 管理插件。
 - 基础 UCI 配置管理
 
 ## 安装
-
+默认用户名 admin
+默认密码 V0h!ve@2025rt 或者 admin123
 ### 方式一：手动安装（推荐）
 
 ```sh
