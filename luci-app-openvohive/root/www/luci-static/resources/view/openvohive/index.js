@@ -488,22 +488,25 @@ return view.extend({
 			this.loadCorePane(corePane);
 		}.bind(this));
 
-		var panes = E('div', {}, [
-			E('div', { 'data-tab': 'home', 'data-tab-title': _('首页') }, [
-				this.statusNode,
-				this.renderServiceButtons()
-			]),
-			corePane,
-			E('div', { 'data-tab': 'config', 'data-tab-title': _('基础配置') }, this.renderConfigMap()),
-			E('div', { 'data-tab': 'logs', 'data-tab-title': _('日志') }, this.renderLogs(logs))
-		]);
+		// renderConfigMap 返回 Promise，需要等待
+		return Promise.resolve(this.renderConfigMap()).then(function(configEl) {
+			var panes = E('div', {}, [
+				E('div', { 'data-tab': 'home', 'data-tab-title': _('首页') }, [
+					this.statusNode,
+					this.renderServiceButtons()
+				]),
+				corePane,
+				E('div', { 'data-tab': 'config', 'data-tab-title': _('基础配置') }, configEl),
+				E('div', { 'data-tab': 'logs', 'data-tab-title': _('日志') }, this.renderLogs(logs))
+			]);
 
-		ui.tabs.initTabGroup(panes.childNodes);
+			ui.tabs.initTabGroup(panes.childNodes);
 
-		return E('div', {}, [
-			E('h2', {}, _('Open-VoHive')),
-			E('div', { 'class': 'cbi-map-descr' }, _('管理 Open-VoHive 4G/5G 模组管理器。支持服务控制、核心更新、状态监控与日志查看。')),
-			panes
-		]);
+			return E('div', {}, [
+				E('h2', {}, _('Open-VoHive')),
+				E('div', { 'class': 'cbi-map-descr' }, _('管理 Open-VoHive 4G/5G 模组管理器。支持服务控制、核心更新、状态监控与日志查看。')),
+				panes
+			]);
+		}.bind(this));
 	}
 });
