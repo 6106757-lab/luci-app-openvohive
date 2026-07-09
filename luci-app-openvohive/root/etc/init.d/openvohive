@@ -19,7 +19,7 @@ server:
     debug: false
 web:
     username: admin
-    password: $2b$10$H0TVOcoAiLxLd.nOnsV.COmrMRcMqeqp9r1wHDW6T6v4/M77XLj/2
+    password: $2b$10$9LCdj6OK5XRsKRCbBh9l0eQ7WpjcL1zvctIDxhdtTHRUIVsmOzns.
 devices: []
 email:
     enabled: false
