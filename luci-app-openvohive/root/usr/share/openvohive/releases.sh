@@ -25,7 +25,8 @@ if [ -z "$resp" ]; then
 fi
 
 # 提取版本号（tag_name，去掉 v 前缀）
-versions=$(echo "$resp" | jsonfilter -e '$.@[@].tag_name' 2>/dev/null | sed 's/^v//' | head -n "$MAX")
+# OpenWrt jsonfilter 语法: $[*].tag_name
+versions=$(echo "$resp" | jsonfilter -e '$[*].tag_name' 2>/dev/null | sed 's/^v//' | head -n "$MAX")
 
 # 最新版本
 latest=$(echo "$versions" | head -1)
