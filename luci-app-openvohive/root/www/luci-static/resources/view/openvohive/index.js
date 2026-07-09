@@ -502,13 +502,18 @@ return view.extend({
 				E('div', { 'data-tab': 'logs', 'data-tab-title': _('日志') }, this.renderLogs(logs))
 			]);
 
-			ui.tabs.initTabGroup(panes.childNodes);
-
-			return E('div', {}, [
+			var root = E('div', {}, [
 				E('h2', {}, _('Open-VoHive')),
 				E('div', { 'class': 'cbi-map-descr' }, _('管理 Open-VoHive 4G/5G 模组管理器。支持服务控制、核心更新、状态监控与日志查看。')),
 				panes
 			]);
+
+			// 延迟初始化 tabs，确保 DOM 已挂载
+			window.setTimeout(function() {
+				ui.tabs.initTabGroup(panes.childNodes);
+			}, 0);
+
+			return root;
 		}.bind(this));
 	}
 });
