@@ -1,0 +1,66 @@
+name: Build LuCI Package
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build IPK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - sdk_url: https://downloads.immortalwrt.org/releases/24.10.5/targets/x86/64/immortalwrt-sdk-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.xz
+            sdk_name: immortalwrt-sdk-x86-64
+            arch: x86_64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get SDK
+        run: |
+          wget -q ${{ matrix.sdk_url }} -O sdk.tar.xz
+          tar xf sdk.tar.xz
+          mv ${{ matrix.sdk_name }} sdk
+
+      - name: Setup package
+        run: |
+          cp -r luci-app-openvohive sdk/package/
+          cd sdk
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Build
+        run: |
+          cd sdk
+          make package/luci-app-openvohive/compile V=s -j$(nproc)
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-app-openvohive-ipk
+          path: sdk/bin/packages/*/base/*.ipk
+
+  release:
+    name: Create Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*.ipk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

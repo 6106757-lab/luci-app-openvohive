@@ -47,7 +47,15 @@ else
 fi
 
 port_status="unknown"
-PORT="$(uci_get server_port '7575')"
+# 优先从 config.yaml 读取端口（核心实际使用），fallback 到 UCI
+PORT=""
+CONFIG_YAML="/opt/openvohive/config/config.yaml"
+if [ -f "$CONFIG_YAML" ]; then
+	PORT=$(sed -n 's/^[[:space:]]*port:[[:space:]]*//p' "$CONFIG_YAML" 2>/dev/null | head -1)
+	PORT="${PORT:-}"
+fi
+[ -z "$PORT" ] && PORT="$(uci_get server_port '7575')"
+
 if command -v ss >/dev/null 2>&1; then
 	if ss -ltn 2>/dev/null | awk '{print $4}' | grep -Eq "[:.]${PORT}$"; then
 		port_status="listening"
